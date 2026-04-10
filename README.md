@@ -15,8 +15,10 @@ This project automatically analyzes Azure DevOps Pull Requests using an **AI-pow
 When a PR is created or updated:
 
 - A CI/CD pipeline is triggered
-- An AI Docker container is pulled from Azure Container Registry (ACR)
+- An AI Docker image is pulled from Azure Container Registry (ACR)
+- Image is executed as a running container
 - The container fetches PR changes
+- Code is sent to AI engine for analysis 
 - AI analyzes code for:
   - 🔐 Security issues  
   - 🐛 Bugs  
@@ -24,5 +26,3 @@ When a PR is created or updated:
 - Results are posted back as PR comments
 
 ---
-
-## ⚙️ Architecture
