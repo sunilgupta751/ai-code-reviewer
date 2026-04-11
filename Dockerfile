@@ -11,10 +11,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 4. Copy Source Code and move to container app folder (app/ (source code)  and .app/ (container folder))
-COPY app/ .
+COPY app/ ./app/
 
 # 5. Environment variable for Python path
 ENV PYTHONPATH=/app
 
 # 6. Command to run the app 
-CMD ["python","main.py"]
+CMD ["python","app/main.py"]
