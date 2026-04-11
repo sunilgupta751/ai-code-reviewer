@@ -1,0 +1,4 @@
+- To comment code for multiple
+    Sigle Line # Commented Code
+    Multiple Line """Commented Code"""
+    Multiple Line for Command - CTRL +/

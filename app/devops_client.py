@@ -18,7 +18,7 @@ class GitHubClient:
     def fetch_pr_files(self):
         """PR mein change hui files ki list nikalne ke liye"""
         url = f"{self.base_url}/repos/{self.repo}/pulls/{self.pr_id}/files"
-        response = requests.get(url, headers=self.get_headers())
+        response = requests.get(url, headers=self.get_auth_header())
         response.raise_for_status()
         # GitHub mein 'filename' key use hoti hai
         return [f['filename'] for f in response.json()]
