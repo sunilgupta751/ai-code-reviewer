@@ -34,7 +34,7 @@ class GitHubClient:
         """Specific file ka raw content nikalne ke liye"""
         # Note: Production mein 'ref' (commit SHA) dena best practice hai
         url = f"{self.base_url}/repos/{self.repo}/contents/{file_path}?ref=pull/{self.pr_id}/head"
-        response = requests.get(url, headers=self.get_headers())
+        response = requests.get(url, headers=self.get_auth_header())
         if response.status_code == 200:
             # GitHub content base64 mein deta hai, hume use decode karna padega
             import base64
@@ -46,5 +46,5 @@ class GitHubClient:
         """PR par feedback comment post karne ke liye"""
         url = f"{self.base_url}/repos/{self.repo}/issues/{self.pr_id}/comments"
         body = {"body": message}
-        response = requests.post(url, json=body, headers=self.get_headers())
+        response = requests.post(url, json=body, headers=self.get_auth_header())
         return response.status_code
