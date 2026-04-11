@@ -7,13 +7,18 @@ logger = logging.getLogger(__name__)
 
 class AIEngine:
     def _init_(self):
+        # Environment variables se data uthayein
+        endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+        api_key = os.getenv("AZURE_OPENAI_KEY")
+        self.deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
+
         self.client = AzureOpenAI(
-            azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-            api_key=os.getenv("AZURE_OPENAI_KEY"),
-            api_version="2024-02-15-preview",
-            deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
+            azure_endpoint=endpoint,
+            api_key=api_key,
+            api_version="2024-02-15-preview"
         )
-        if not self.client.azure_endpoint or not self.client.api_key:
+        
+        if not endpoint or not api_key or not self.deployment_name:
             logger.error("Azure OpenAI Credentials missing in Environment Variables!")
             raise ValueError("Missing Azure OpenAI configuration.")
         # Deployment name jo aapne Azure portal mein rakha hai
@@ -33,13 +38,15 @@ class AIEngine:
             f"Code Content:\n{content}\n\n"
             f"Provide a concise, professional summary with actionable feedback."
         )
+        # User Message: Actual kaam aur data bhejta hai
+        user_prompt = f"Review the following file: {file_path}\n\nContent:\n{content}"
         try:
             response = self.client.chat.completions.create(
-                model=self.client.deployment_name
+                model=self.deployment_name,
                 messages=[
-                        {"role": "system", "content": "You are a professional code reviewer who provides technical, concise, and helpful feedback."},
-                        {"role": "user", "content": prompt}
-                    ],
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
                 temperature=0.2 # Temperature kam rakha hai taaki response consistent rahe
             )
             return response.choices[0].message.content
