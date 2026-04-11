@@ -1,11 +1,9 @@
 name: 'AI Code Quality Gate'
 
 on:
-  push:
-    branches: [ "main", "develop" ] 
-  # pull_request:
-  #   branches: [ "main", "develop" ]
-  #   types: [opened, synchronize]
+  pull_request:
+    branches: [ "develop" ]
+    types: [opened, synchronize]
 
 jobs:
   ai-review:

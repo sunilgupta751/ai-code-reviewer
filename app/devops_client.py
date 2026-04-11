@@ -1,6 +1,11 @@
 import os
 import base64
 import requests
+import logging
+
+# Logging setup taaki pipeline logs mein dikhe ki AI kya kar raha hai
+logger = logging.getLogger(__name__)
+
 class GitHubClient:
     def __init__(self):
         self.token = os.getenv("GITHUB_TOKEN")
@@ -16,6 +21,8 @@ class GitHubClient:
         }
 
     def fetch_pr_files(self):
+        if not self.pr_id:
+            logger.error("PR_NUMBER environment variable is missing!")
         """PR mein change hui files ki list nikalne ke liye"""
         url = f"{self.base_url}/repos/{self.repo}/pulls/{self.pr_id}/files"
         response = requests.get(url, headers=self.get_auth_header())
