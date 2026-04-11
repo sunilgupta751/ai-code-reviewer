@@ -1,32 +1,43 @@
 import os
 import base64
 import requests
-class AzureDevOpsClient:
+class GitHubClient:
     def __init__(self):
-        self.pat=os.getenv("AZURE_DEVOPS_PAT") #personal access token
-        self.org_url=os.getenv("SYSTEM_COLLECTIONURI")
-        self.project=os.getenv("SYSTEM_TEAMPROJECT")
-        self.repo_id=os.getenv("BUILD_REPOSITORY_ID")
-        self.pr_id=os.getenv("SYSTEM_PULLREQUEST_PULLREQUESTID")
+        self.token = os.getenv("GITHUB_TOKEN")
+        self.repo = os.getenv("GITHUB_REPOSITORY") # Format: "owner/repo"
+        self.pr_id = os.getenv("PR_NUMBER")
+        self.base_url = "https://api.github.com"
 
     def get_auth_header(self):
-        auth_str=f":{self.pat}"
-        encoded=base64.b64encode(auth_str.encode()).decode()
-        return{"Authorization":f"Basic {encoded}","Content-Type":"application/json"}
-    
+        return {
+            "Authorization": f"Bearer {self.token}",
+            "Accept": "application/vnd.github.v3+json",
+            "Content-Type": "application/json"
+        }
 
     def fetch_pr_files(self):
-        url = f"{self.org_url}{self.project}/_apis/git/repositories/{self.repo_id}/pullRequests/{self.pr_id}/changes?api-version=7.1-preview.1"
-        response = requests.get(url, headers=self.get_auth_header())
+        """PR mein change hui files ki list nikalne ke liye"""
+        url = f"{self.base_url}/repos/{self.repo}/pulls/{self.pr_id}/files"
+        response = requests.get(url, headers=self.get_headers())
         response.raise_for_status()
-        return [c['item']['path'] for c in response.json()['changes'] if 'item' in c]
+        # GitHub mein 'filename' key use hoti hai
+        return [f['filename'] for f in response.json()]
 
-    def get_file_content(self, path):
-        url = f"{self.org_url}{self.project}/_apis/git/repositories/{self.repo_id}/items?path={path}&api-version=7.1-preview.1"
-        res = requests.get(url, headers=self.get_auth_headers())
-        return res.text if res.status_code == 200 else None
+    def get_file_content(self, file_path):
+        """Specific file ka raw content nikalne ke liye"""
+        # Note: Production mein 'ref' (commit SHA) dena best practice hai
+        url = f"{self.base_url}/repos/{self.repo}/contents/{file_path}?ref=pull/{self.pr_id}/head"
+        response = requests.get(url, headers=self.get_headers())
+        if response.status_code == 200:
+            # GitHub content base64 mein deta hai, hume use decode karna padega
+            import base64
+            content_b64 = response.json().get('content', '')
+            return base64.b64decode(content_b64).decode('utf-8')
+        return None
 
     def post_comment(self, message):
-        url = f"{self.org_url}{self.project}/_apis/git/repositories/{self.repo_id}/pullRequests/{self.pr_id}/threads?api-version=7.1-preview.1"
-        body = {"comments": [{"content": message, "parentCommentId": 0, "commentType": 1}], "status": 1}
-        requests.post(url, json=body, headers=self.get_auth_headers())
+        """PR par feedback comment post karne ke liye"""
+        url = f"{self.base_url}/repos/{self.repo}/issues/{self.pr_id}/comments"
+        body = {"body": message}
+        response = requests.post(url, json=body, headers=self.get_headers())
+        return response.status_code
