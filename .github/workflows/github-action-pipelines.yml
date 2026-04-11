@@ -37,7 +37,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           # Image pull karein aur run karein
-          docker pull ${{ secrets.ACR_LOGIN_SERVER }}/ai-reviewer:v1.0.0
+          docker pull ${{ secrets.ACR_LOGIN_SERVER }}/ai-reviewer:v1.0.7
           docker run --rm \
             -e GITHUB_TOKEN=$GITHUB_TOKEN \
             -e GITHUB_REPOSITORY=$GITHUB_REPOSITORY \
