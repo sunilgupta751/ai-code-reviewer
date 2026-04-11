@@ -3,6 +3,7 @@ import logging
 from openai import AzureOpenAI
 
 # Logging setup taaki pipeline logs mein dikhe ki AI kya kar raha hai
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
 
 class AIEngine:
@@ -35,8 +36,8 @@ class AIEngine:
             f"1. Security vulnerabilities (OWASP).\n"
             f"2. Potential bugs or edge cases.\n"
             f"3. Code quality and SOLID principles.\n\n"
-            f"Code Content:\n{content}\n\n"
-            f"Provide a concise, professional summary with actionable feedback."
+            f"4. Code Content:\n{content}\n\n"
+            f"5. Provide a concise, professional summary with actionable feedback."
         )
         # User Message: Actual kaam aur data bhejta hai
         user_prompt = f"Review the following file: {file_path}\n\nContent:\n{content}"
