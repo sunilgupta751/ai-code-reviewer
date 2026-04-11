@@ -22,7 +22,7 @@ class AIEngine:
         if not endpoint or not api_key or not self.deployment_name:
             logger.error("Azure OpenAI Credentials missing in Environment Variables!")
             raise ValueError("Missing Azure OpenAI configuration.")
-        # Deployment name jo aapne Azure portal mein rakha hai
+        # Deployment name jo aapne Azure portal mein rakha haii
         
 
     def analyze_code(self, file_path, content):
