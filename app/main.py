@@ -26,7 +26,7 @@ def run_workflow():
     full_report = "### 🤖 AI Code Review\n\n"
     review_generated = False
     for file_path in files:
-        if file_path.lower().endswith('.py', '.cs', '.js', '.ts', '.sql'):
+        if file_path.lower().endswith(('.py', '.cs', '.js', '.ts', '.sql')):    
             try:
                 content = devops.get_file_content(file_path)
                 if content:
