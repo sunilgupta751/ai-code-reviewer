@@ -8,21 +8,24 @@ logger = logging.getLogger(__name__)
 
 class AIEngine:
     def __init__(self):
-        # Environment variables se data uthayein
+        # 1. Environment variables se data uthayein
         endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
         api_key = os.getenv("AZURE_OPENAI_KEY")
         self.deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
 
+        
+        # 2. Deployment name jo aapne Azure portal mein rakha haii
+        if not endpoint or not api_key or not self.deployment_name:
+            logger.error("Azure OpenAI Credentials missing in Environment Variables!")
+            raise ValueError("Missing Azure OpenAI configuration.")
+        # 3. Ab client banayein jab hum sure hain ki data hai       
         self.client = AzureOpenAI(
             azure_endpoint=endpoint,
             api_key=api_key,
             api_version="2024-02-15-preview"
         )
         
-        if not endpoint or not api_key or not self.deployment_name:
-            logger.error("Azure OpenAI Credentials missing in Environment Variables!")
-            raise ValueError("Missing Azure OpenAI configuration.")
-        # Deployment name jo aapne Azure portal mein rakha haii
+        
         
 
     def analyze_code(self, file_path, content):
