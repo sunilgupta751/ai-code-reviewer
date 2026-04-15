@@ -20,6 +20,7 @@ def run_workflow():
 
     logger.info("Fetching PR changes from GitHub...")
     files = devops.fetch_pr_files()
+    logger.info(files)
     if not files:
         logger.info("No modified files found in this PR.")
         return
