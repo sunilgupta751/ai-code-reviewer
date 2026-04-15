@@ -26,20 +26,41 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: 'Run AI Reviewer Container'
+      # Professional Practice: Build with SHA for Immutability
+      - name: 'Build and Push Docker Image'
+        id: build_image
+        run: |
+          # SHA based tagging (Professional Standard)
+          IMAGE_TAG=${{ github.sha }}
+          REGISTRY=${{ secrets.ACR_LOGIN_SERVER }}
+          IMAGE_NAME=$REGISTRY/ai-reviewer:$IMAGE_TAG
+          
+          echo "Building $IMAGE_NAME..."
+          docker build -t $IMAGE_NAME .
+          
+          echo "Pushing to ACR..."
+          docker push $IMAGE_NAME
+          
+          # Storing for next step
+          echo "IMAGE_FULL_PATH=$IMAGE_NAME" >> $GITHUB_ENV
+
+      - name: 'Run AI Reviewer'
         env:
-          # In env variables ka naam wahi rakhein jo Python script mein hai
+          # Injected from GitHub Secrets
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AZURE_OPENAI_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_DEPLOYMENT_NAME: ${{ secrets.AZURE_OPENAI_DEPLOYMENT_NAME }}
+          # Contextual Info
+          GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          # Image pull karein aur run karein
-          docker pull ${{ secrets.ACR_LOGIN_SERVER }}/ai-reviewer:v1.0.19
+          echo "Executing review using image: ${{ env.IMAGE_FULL_PATH }}"
           docker run --rm \
             -e GITHUB_TOKEN=$GITHUB_TOKEN \
             -e GITHUB_REPOSITORY=$GITHUB_REPOSITORY \
             -e PR_NUMBER=$PR_NUMBER \
             -e AZURE_OPENAI_KEY=$AZURE_OPENAI_KEY \
             -e AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT \
-            ${{ secrets.ACR_LOGIN_SERVER }}/ai-reviewer:v1.0.19
+            -e AZURE_OPENAI_DEPLOYMENT_NAME=$AZURE_OPENAI_DEPLOYMENT_NAME \
+            ${{ env.IMAGE_FULL_PATH }}
